@@ -3,13 +3,14 @@ import express from 'express';
 import { uploadImageToCloudinary, uploadImagesFromFolder } from '../services/upload.service.js';
 import multer from 'multer';
 import path from 'path';
+import { url } from 'inspector';
 
 const router = express.Router();
 
 // Cấu hình multer để lưu file tạm
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/');
+        cb(null, 'Chapter1/');
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + path.extname(file.originalname));
@@ -22,7 +23,9 @@ const upload = multer({ storage: storage });
 router.get('/upload-from-folder', async (req, res) => {
     try {
         await uploadImagesFromFolder('./Chapter1');
-        res.status(200).json({ message: 'All images uploaded successfully' });
+        res.status(200).json({ message: 'All images uploaded successfully',
+        imageUrl: imageUrl,
+         });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

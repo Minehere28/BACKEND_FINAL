@@ -19,14 +19,14 @@ connectDB().then(() => {
   app.use('/apis', routers);
 
     // Thêm route upload (có thể đặt prefix khác nếu cần)
-    app.use('/api/upload', uploadRoute);
+    app.use('/apis/upload', uploadRoute);
   
   // Error handler middleware
   app.use(errorHandler);
 
   app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
-    console.log(`Upload route available at: http://localhost:${port}/api/upload`);
+    console.log(`Upload route available at: http://localhost:${port}/apis/upload`);
   });
 }).catch(error => {
   console.error('Database connection failed:', error);
