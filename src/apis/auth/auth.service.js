@@ -48,9 +48,11 @@ class AuthService {
   }
 
   async sendPasswordResetEmail(email) {
+    console.log(email);
     const user = await this.userRepo.findByEmail(email);
+    console.log(user);
     if (!user) return; // Không báo lỗi để tránh leak thông tin
-
+    console.log(email)
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
@@ -64,7 +66,7 @@ class AuthService {
     );
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-    await this.mailService.sendResetPasswordEmail(email, resetUrl);
+    await this.mailService.sendMail(email, resetUrl);
   }
 
   async resetPassword(token, newPassword) {
@@ -82,7 +84,7 @@ class AuthService {
     await this.userRepo.updatePassword(user._id, hashedPassword);
     await this.userRepo.clearResetToken(user._id);
 
-    await this.mailService.sendPasswordChangedConfirmation(user.email);
+    await mailService.sendPasswordChangedConfirmation(user.email);
   }
 }
 
