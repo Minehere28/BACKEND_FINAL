@@ -1,31 +1,46 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  password: { type: String, required: true },
-  avatar:{
-    public_id:{
-      type: String,
-      required: true, },
-    url:{
-        type: String,
-        required: true,
-    }
+  username: {
+    type: String,
+    required: [true, 'Please add a username'],
+    unique: true,
+    trim: true
+  },
+  password: {
+    type: String,
+    required: [true, 'Please add a password'],
+    minlength: 6,
+    select: false
+  },
+  role: {
+    type: String,
+    enum: ['Admin', 'Member'],
+    default: 'Member'
+  },
+  team: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Team'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
-}, { timestamps: true });  
+});
 
-// Hash the password before saving it to the database
-// userSchema.pre('save', async function (next) {
-//   if (!this.isModified('password')) return next();
-//   const salt = await bcrypt.genSalt(10);
-//   this.password = await bcrypt.hash(this.password, salt);
-//   next();
-// });
+// Encrypt password
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) {
+    next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
 
-// // Instance method to validate the user's password
-// userSchema.methods.validatePassword = async function (password) {
-//   return await bcrypt.compare(password, this.password);
-// };
+// Match password
+userSchema.methods.matchPassword = async function(enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
-const UserModel = mongoose.model('User', userSchema);
-export default UserModel;
+module.exports = mongoose.model('User', userSchema);

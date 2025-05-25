@@ -1,6 +1,6 @@
 // src/routes/upload.route.js
 import express from 'express';
-import { uploadImageToCloudinary, uploadImagesFromFolder } from '../services/upload.service.js';
+import { uploadImageToCloudinary, uploadImagesFromFolder } from '../utils/fileUpload.js';
 import multer from 'multer';
 import path from 'path';
 import { url } from 'inspector';
