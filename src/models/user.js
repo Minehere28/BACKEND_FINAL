@@ -8,6 +8,14 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
   },
+   email: {
+    type: String,
+    required: [true, 'Please provide an email'],
+    unique: true,
+    trim: true,
+    lowercase: true,
+    match: [/.+\@.+\..+/, 'Please fill a valid email address'],
+  },
   password: {
     type: String,
     required: [true, 'Please provide a password'],
@@ -16,39 +24,35 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['Admin', 'Member'],
-    default: 'Member',
+    enum: ['Admin', 'User'],
+    default: 'User',
   },
-  teamId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Team',
+  isActive: {
+    type: Boolean,
+    default: true,
   },
 }, { timestamps: true });
 
-// ✅ Mã hóa mật khẩu trước khi lưu
+// Mã hóa mật khẩu trước khi lưu
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
-  console.log('🔒 Hashing password...');
   try {
     this.password = await bcrypt.hash(this.password, 12);
-    console.log('✅ Password hashed!');
+    console.log('Password hashed!');
     next();
   } catch (err) {
-    console.error('❌ Error hashing password:', err);
+    console.error('Error hashing password:', err);
     next(err);
   }
 });
 
-// ✅ So sánh mật khẩu khi đăng nhập
+// So sánh mật khẩu khi đăng nhập
 userSchema.methods.matchPassword = async function (candidatePassword) {
-  console.log('🔐 Comparing password...');
   try {
     const result = await bcrypt.compare(candidatePassword, this.password);
-    console.log('✅ Password comparison result:', result);
     return result;
   } catch (err) {
-    console.error('❌ Error comparing password:', err);
     throw err;
   }
 };

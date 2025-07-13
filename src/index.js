@@ -17,20 +17,16 @@ import globalErrorHandler from './middlewares/errorHandler.js';
 // Routes
 import authRouter from './routes/auth.routes.js';
 import userRouter from './routes/user.routes.js';
-import taskRouter from './routes/tasks.routes.js';
-import subBoardRouter from './routes/subBoards.routes.js';
-import commentRouter from './routes/comments.routes.js';
-import teamRouter from './routes/team.routes.js';
+import eventRouter from './routes/event.routes.js';
+
 
 const app = express();
 
-// Connect to MongoDB
 connectDB();
 
-// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // limit each IP to 1000 requests per windowMs
+  windowMs: 15 * 60 * 1000, 
+  max: 1000, 
   message: 'Quá nhiều requests từ IP này, vui lòng thử lại sau 15 phút'
 });
 app.use('/api', limiter);
@@ -64,37 +60,23 @@ app.get('/api/health', (req, res) => {
 });
 
 // Routes
-app.use('/api/users', authRouter);
-app.use('/api/users', userRouter);
-app.use('/api/tasks', taskRouter);
-app.use('/api/subboards', subBoardRouter);
-app.use('/api/comments', commentRouter);
-app.use('/api/teams', teamRouter);
+app.use('/auth', authRouter);
+app.use('/users', userRouter);
+app.use('/events', eventRouter);
 
-// Handle non-existing routes
+
 app.all('*', (req, res, next) => {
   next(new AppError(`Không tìm thấy ${req.originalUrl} trên server!`, 404));
 });
 
-// Global error handling middleware
 app.use(globalErrorHandler);
 
-// Compression (should be after routes)
 app.use(compression());
 
-const port = 3000;
+const port = 3001;
 const server = app.listen(port, () => {
   console.log(`Server listening on port ${port}...`);
 });
 
-process.on('unhandledRejection', (err) => {
-  console.error('UNHANDLED REJECTION! 💥', err);
-  server.close(() => process.exit(1));
-});
-
-process.on('uncaughtException', (err) => {
-  console.error('UNCAUGHT EXCEPTION! 💥', err);
-  process.exit(1);
-});
 
 export default app;

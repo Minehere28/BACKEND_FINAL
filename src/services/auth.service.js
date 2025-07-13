@@ -1,7 +1,7 @@
 import User from '../models/user.js';
 import jwt from 'jsonwebtoken';
 import AppError from '../utils/appError.js';
-import Team from '../models/team.js';
+
 
 const signToken = (id) => {
   if (!process.env.JWT_SECRET) {
@@ -16,13 +16,6 @@ export const register = async (userData) => {
   try {
     console.log('[auth.service.js] Register userData:', userData);
 
-    // Kiểm tra teamId có hợp lệ không
-    if (userData.teamId) {
-      const existingTeam = await Team.findById(userData.teamId);
-      if (!existingTeam) {
-        throw new AppError('Team không tồn tại', 400);
-      }
-    }
 
     const newUser = await User.create(userData);
     console.log('[auth.service.js] New user created:', newUser);
